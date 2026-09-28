@@ -32,7 +32,7 @@ jobs:
       - name: Build a windowed onedir application
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --onedir --windowed --name LogoColorStudio --icon assets/logo.ico --add-data "index.html;." --add-data "samples;samples" --add-data "assets;assets" --collect-all webview --collect-all pythonnet --collect-all clr_loader --collect-all resvg_py --collect-all PIL --hidden-import webview.platforms.edgechromium --hidden-import pythoncom --hidden-import pywintypes --collect-submodules win32com app.py
+          python -m PyInstaller --noconfirm --clean --onedir --windowed --name LogoColorStudio --icon assets/logo.ico --add-data "index.html;." --add-data "assets;assets" --collect-all webview --collect-all pythonnet --collect-all clr_loader --collect-all resvg_py --collect-all PIL --hidden-import webview.platforms.edgechromium --hidden-import pythoncom --hidden-import pywintypes --collect-submodules win32com app.py
 
       - name: Package the complete app folder and guide
         shell: pwsh
