@@ -13,12 +13,11 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python for the build machine
+      - name: Set up Python on the GitHub build machine
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -30,15 +29,15 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt pyinstaller
 
-      - name: Build the standalone Windows executable
+      - name: Build a windowed onedir application
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --onefile --name LogoColorStudio --add-data "index.html;." --add-data "samples;samples" --collect-all resvg_py --collect-all PIL --hidden-import pythoncom --hidden-import pywintypes --collect-submodules win32com app.py
+          python -m PyInstaller --noconfirm --clean --onedir --windowed --name LogoColorStudio --icon assets/logo.ico --add-data "index.html;." --add-data "samples;samples" --add-data "assets;assets" --collect-all webview --collect-all pythonnet --collect-all clr_loader --collect-all resvg_py --collect-all PIL --hidden-import webview.platforms.edgechromium --hidden-import pythoncom --hidden-import pywintypes --collect-submodules win32com app.py
 
-      - name: Package executable and Persian guide
+      - name: Package the complete app folder and guide
         shell: pwsh
         run: |
-          Compress-Archive -Path "dist/LogoColorStudio.exe", "README_FA.txt" -DestinationPath "LogoColorStudio-Windows.zip" -Force
+          Compress-Archive -Path "dist/LogoColorStudio", "README_FA.txt" -DestinationPath "LogoColorStudio-Windows.zip" -Force
 
       - name: Upload the Windows app
         uses: actions/upload-artifact@v4
