@@ -2,7 +2,9 @@ name: Build Logo Color Studio for Windows
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
@@ -11,6 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -23,7 +26,13 @@ jobs:
 
       - name: Extract app source bundle
         shell: pwsh
-        run: Expand-Archive -LiteralPath "logo-color-studio-source.zip" -DestinationPath "source" -Force
+        run: |
+          $archive = Join-Path $env:GITHUB_WORKSPACE "logo-color-studio-source.zip"
+          if (-not (Test-Path -LiteralPath $archive)) {
+            Get-ChildItem -Force $env:GITHUB_WORKSPACE
+            throw "logo-color-studio-source.zip was not found in the repository root."
+          }
+          Expand-Archive -LiteralPath $archive -DestinationPath "source" -Force
 
       - name: Install build dependencies
         shell: pwsh
@@ -35,21 +44,12 @@ jobs:
         working-directory: source
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --onefile --name LogoColorStudio `
-            --add-data "index.html;." `
-            --add-data "samples;samples" `
-            --collect-all resvg_py `
-            --collect-all PIL `
-            --hidden-import pythoncom `
-            --hidden-import pywintypes `
-            --collect-submodules win32com `
-            app.py
+          python -m PyInstaller --noconfirm --clean --onefile --name LogoColorStudio --add-data "index.html;." --add-data "samples;samples" --collect-all resvg_py --collect-all PIL --hidden-import pythoncom --hidden-import pywintypes --collect-submodules win32com app.py
 
       - name: Package executable and Persian guide
         shell: pwsh
         run: |
-          Compress-Archive -Path "source/dist/LogoColorStudio.exe", "source/README_FA.txt" `
-            -DestinationPath "LogoColorStudio-Windows.zip" -Force
+          Compress-Archive -Path "source/dist/LogoColorStudio.exe", "source/README_FA.txt" -DestinationPath "LogoColorStudio-Windows.zip" -Force
 
       - name: Upload the Windows app
         uses: actions/upload-artifact@v4
