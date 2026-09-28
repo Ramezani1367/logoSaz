@@ -24,24 +24,13 @@ jobs:
           python-version: "3.12"
           architecture: "x64"
 
-      - name: Extract app source bundle
-        shell: pwsh
-        run: |
-          $archive = Join-Path $env:GITHUB_WORKSPACE "logo-color-studio-source.zip"
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Get-ChildItem -Force $env:GITHUB_WORKSPACE
-            throw "logo-color-studio-source.zip was not found in the repository root."
-          }
-          Expand-Archive -LiteralPath $archive -DestinationPath "source" -Force
-
       - name: Install build dependencies
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r source/requirements.txt pyinstaller
+          python -m pip install -r requirements.txt pyinstaller
 
       - name: Build the standalone Windows executable
-        working-directory: source
         shell: pwsh
         run: |
           python -m PyInstaller --noconfirm --clean --onefile --name LogoColorStudio --add-data "index.html;." --add-data "samples;samples" --collect-all resvg_py --collect-all PIL --hidden-import pythoncom --hidden-import pywintypes --collect-submodules win32com app.py
@@ -49,7 +38,7 @@ jobs:
       - name: Package executable and Persian guide
         shell: pwsh
         run: |
-          Compress-Archive -Path "source/dist/LogoColorStudio.exe", "source/README_FA.txt" -DestinationPath "LogoColorStudio-Windows.zip" -Force
+          Compress-Archive -Path "dist/LogoColorStudio.exe", "README_FA.txt" -DestinationPath "LogoColorStudio-Windows.zip" -Force
 
       - name: Upload the Windows app
         uses: actions/upload-artifact@v4
